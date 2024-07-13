@@ -39,11 +39,26 @@ MainWindow::MainWindow(QWidget *parent) : QWidget(parent) {
     connect(targetButton, SIGNAL(clicked(bool)), this, SLOT(EnterTargetPath()));
     connect(name, SIGNAL(textChanged(const QString&)), this, SLOT(UpdateTargetPath()));
     connect(saveButton, SIGNAL(clicked(bool)), this, SLOT(SaveFile()));
+    connect(&proc, SIGNAL(finished(int, QProcess::ExitStatus)), this, SLOT(finished()));
 
     setLayout(vLayout);
 }
 
+
 MainWindow::~MainWindow() {
+    delete sourceButton;
+    delete targetButton;
+    delete saveButton;
+    delete saveSameDirectory;
+    delete gridLayout;
+    delete vLayout;
+    delete sourceLocation;
+    delete targetLocation;
+    delete name;
+    delete source;
+    delete target;
+    delete newName;
+    delete pixmap;
 }
 
 
@@ -58,25 +73,47 @@ void MainWindow::SaveInSameDirectory(int b) {
     }
 }
 
+
 void MainWindow::EnterSourcePath() {
     QString str = QFileDialog::getOpenFileName(nullptr, "Выбрать файл...", "", "*.mp4");
     sourceLocation->setText(str);
     UpdateTargetPath();
 }
 
+
 void MainWindow::EnterTargetPath() {
-    targetLocation->setText(QFileDialog::getExistingDirectory(nullptr, "Выбрать каталог...", ""));
+    targetLocation->setText(
+                QFileDialog::getExistingDirectory(nullptr, "Выбрать каталог...", "") + "/");
 }
+
 
 void MainWindow::UpdateTargetPath() {
     if (!targetLocation->isEnabled()) {
         size_t pos = sourceLocation->text().toStdString().find_last_of("/");
         targetLocation->setText(
-                    QString::fromStdString(sourceLocation->text().toStdString().substr(0, pos + 1)));
+                    QString::fromStdString(
+                        sourceLocation->text().toStdString().substr(0, pos + 1)));
     }
 }
+
 
 void MainWindow::SaveFile() {
     QString sourcePath = sourceLocation->text();
     QString targetPath = targetLocation->text() + name->text();
+
+    proc.setWorkingDirectory(QDir::currentPath() + "/debug");
+    proc.start("v2s_p.exe", QStringList({"-s", sourcePath, "-n",
+                                         targetPath +
+                                         (name->text().contains(".mp3") ? "" : ".mp3")}));
+}
+
+
+void MainWindow::finished() {
+    QProcess::ExitStatus exitStatus = proc.exitStatus();
+
+    if (exitStatus == QProcess::NormalExit) {
+        QMessageBox::information(this, "", "Операция успешно выполнена");
+    } else {
+        QMessageBox::information(this, "", "Операция завершилась неудачно");
+    }
 }

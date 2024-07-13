@@ -2,7 +2,6 @@
 #define MAINWINDOW_H
 
 #include <algorithm>
-#include <iostream>
 
 #include <QWidget>
 #include <QPushButton>
@@ -11,6 +10,9 @@
 #include <QLabel>
 #include <QCheckBox>
 #include <QFileDialog>
+#include <QProcess>
+#include <QMessageBox>
+#include <QProgressDialog>
 
 class MainWindow : public QWidget {
 private:
@@ -29,6 +31,7 @@ private:
     QLabel *target;
     QLabel *newName;
     QPixmap *pixmap;
+    QProcess proc;
 
 
 public:
@@ -40,6 +43,8 @@ public slots:
     void EnterSourcePath();
     void EnterTargetPath();
     void UpdateTargetPath();
+    void SaveFile();
+    void finished();
 };
 
 #endif // MAINWINDOW_H
