@@ -30,7 +30,6 @@ private:
     QLabel *source;
     QLabel *target;
     QLabel *newName;
-    QPixmap *pixmap;
     QProcess proc;
 
 

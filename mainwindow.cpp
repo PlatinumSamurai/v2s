@@ -58,7 +58,6 @@ MainWindow::~MainWindow() {
     delete source;
     delete target;
     delete newName;
-    delete pixmap;
 }
 
 
@@ -101,7 +100,14 @@ void MainWindow::SaveFile() {
     QString sourcePath = sourceLocation->text();
     QString targetPath = targetLocation->text() + name->text();
 
-    proc.setWorkingDirectory(QDir::currentPath() + "/debug");
+    if (sourceLocation->text().isEmpty() ||
+        name->text().isEmpty() ||
+        targetLocation->text().isEmpty()) {
+        QMessageBox::critical(this, "", "Указаны неверные данные");
+        return;
+    }
+
+    proc.setWorkingDirectory(QDir::currentPath()/* + "/debug"*/);
     proc.start("v2s_p.exe", QStringList({"-s", sourcePath, "-n",
                                          targetPath +
                                          (name->text().contains(".mp3") ? "" : ".mp3")}));
